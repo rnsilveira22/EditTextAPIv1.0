@@ -1,11 +1,15 @@
 package com.digitro.edittext.service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.digitro.edittext.dao.DocumentoDao;
 import com.digitro.edittext.model.Documento;
 
 public class DocumentoService {
+	
+	public DocumentoDao dao =  new DocumentoDao();
+			
 
 	private void validaTitulo(String titulo) {
 		if (titulo == null || titulo.isEmpty() || titulo.length() > 50) {
@@ -23,7 +27,8 @@ public class DocumentoService {
 	private boolean verificaId (Documento documento) {
 		return documento.getId() == null; 
 	}
-public Documento salvar(Documento documento) {
+	
+	public Documento salvar(Documento documento) {
 
 		if (!verificaId(documento)) {
 			throw new RuntimeException("Ao salvar um documento o ID deve ser nulo.");
@@ -32,7 +37,7 @@ public Documento salvar(Documento documento) {
 		validaTitulo(documento.getTitulo());
 		validaCorpo(documento.getCorpo());
 
-		DocumentoDao dao = new DocumentoDao();
+		
 		documento = dao.salva(documento);
 
 		return documento;
@@ -46,7 +51,7 @@ public Documento salvar(Documento documento) {
 		validaTitulo(documento.getTitulo());
 		validaCorpo(documento.getCorpo());
 
-		DocumentoDao dao = new DocumentoDao();
+		
 		documento = dao.atualiza(documento);
 
 		return documento;
@@ -58,26 +63,23 @@ public Documento salvar(Documento documento) {
 
 	}
 
-	public ArrayList<Documento> listar() {
-		DocumentoDao documentoDao = new DocumentoDao();
-		ArrayList<Documento> documentos = new ArrayList<Documento>();
-		documentos = documentoDao.listar();
+	public List<Documento> listar() {
+		
+		List<Documento> documentos = new ArrayList<>();
+		documentos = dao.listar();
 		return documentos;
 	}
 
-	public Documento listar(Long id) {
+	public Documento get(Long id) {
 		Documento documento = new Documento();
-		DocumentoDao documentoDao = new DocumentoDao();
-		documento = documentoDao.listar(id);
+		
+		documento = dao.get(id);
 		return documento;
 	}
 
-	public ArrayList<Documento> listar(String titulo, String corpo){
-		ArrayList<Documento> documentos = new ArrayList<Documento>();
-		DocumentoDao documentoDao = new DocumentoDao();
-		documentos = documentoDao.listar(titulo,corpo);
-		
-		
+	public List<Documento> listar(String titulo, String corpo){
+		List<Documento> documentos = new ArrayList<>();
+		documentos = dao.listar(titulo,corpo);
 		return documentos;
 	}
 	

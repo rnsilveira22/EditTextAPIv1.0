@@ -1,11 +1,13 @@
 package com.digitro.edittext.dao;
 
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.digitro.edittext.conectBD.ConectaPostgres;
 import com.digitro.edittext.model.Documento;
@@ -30,7 +32,7 @@ public class DocumentoDao {
 
 			while (rs.next()) {
 				documento.setId(rs.getLong("id"));
-				documento.setData(rs.getDate("data").toString());
+				documento.setData(rs.getDate("data"));
 
 			}
 
@@ -47,11 +49,11 @@ public class DocumentoDao {
 		return null;
 	}
 
-	public ArrayList<Documento> listar() {
+	public List<Documento> listar() {
 		con = ConectaPostgres.conectaPostgres();
-		ArrayList<Documento> lista = new ArrayList<Documento>();
+		List<Documento> lista = new ArrayList<>();
 		ResultSet rs = null;
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		
 
 		try {
 			pstmt = con.prepareStatement("SELECT * FROM documento ORDER BY id;");
@@ -61,8 +63,7 @@ public class DocumentoDao {
 				documento.setId(rs.getLong("id"));
 				documento.setTitulo(rs.getString("titulo"));
 				documento.setCorpo(rs.getString("corpo"));
-				String dataString = dateFormat.format(rs.getTimestamp("Data"));
-				documento.setData(dataString);
+				documento.setData(rs.getTimestamp("Data"));
 				lista.add(documento);
 
 			}
@@ -78,13 +79,23 @@ public class DocumentoDao {
 		return lista;
 	}
 
-	public ArrayList<Documento> listar(String titulo, String corpo) {
-		ArrayList<Documento> lista = new ArrayList<Documento>();
+	public List<Documento> listar(String titulo, String corpo) {
+		List<Documento> lista = new ArrayList<>();
 		ResultSet rs = null;
 		con = ConectaPostgres.conectaPostgres();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		try {
-			String script = "Select * FROM documento WHERE titulo LIKE '%"+titulo+"%'AND corpo LIKE '%"+corpo+"%';";
+			
+			String script = "select * FROM documento WHERE 1 = 1";
+			
+			if(titulo != null && !titulo.isEmpty()) {
+				script += " and titulo LIKE '%" + titulo + "%' ";
+			}
+			
+			if(corpo != null && !corpo.isEmpty()) {
+				script += " and corpo LIKE '%" + corpo + "%' ";
+			}
+			
 			pstmt = con.prepareStatement(script);
 			Documento documento = new Documento();
 			rs = pstmt.executeQuery();
@@ -93,8 +104,7 @@ public class DocumentoDao {
 				documento.setId(rs.getLong("id"));
 				documento.setTitulo(rs.getString("titulo"));
 				documento.setCorpo(rs.getString("corpo"));
-				String dataString = dateFormat.format(rs.getTimestamp("Data"));
-				documento.setData(dataString);
+				documento.setData(rs.getTimestamp("Data"));
 				lista.add(documento);
 			}
 			
@@ -110,10 +120,10 @@ public class DocumentoDao {
 		return null;
 	}
 
-	public Documento listar(Long id) {
+	public Documento get(Long id) {
 		ResultSet rs = null;
 		con = ConectaPostgres.conectaPostgres();
-		Documento documento = new Documento();
+		Documento documento = null;
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		try {
 			pstmt = con.prepareStatement("SELECT * FROM documento WHERE id=?;");
@@ -125,8 +135,7 @@ public class DocumentoDao {
 				documento.setId(rs.getLong("id"));
 				documento.setTitulo(rs.getString("titulo"));
 				documento.setCorpo(rs.getString("corpo"));
-				String dataString = dateFormat.format(rs.getTimestamp("Data"));
-				documento.setData(dataString);
+				documento.setData(rs.getTimestamp("Data"));
 			}
 		} catch (Exception e) {
 			System.err.println(e);
@@ -153,7 +162,7 @@ public class DocumentoDao {
 				documento.setId(rs.getLong("id"));
 				documento.setTitulo(rs.getString("titulo"));
 				documento.setCorpo(rs.getString("corpo"));
-				documento.setData(rs.getString("data").toString());
+				documento.setData(rs.getDate("data"));
 			}
 
 		} catch (Exception e) {

@@ -1,13 +1,15 @@
 
 package com.digitro.edittext.model;
 
+import java.util.Date;
+
 public class Documento {
 	
 	private Long id;
 	
 	private String titulo;
 	private String corpo;
-	private String data;
+	private Date data;
 	
 	public Long getId() {
 		return id;
@@ -27,10 +29,10 @@ public class Documento {
 	public void setCorpo(String corpo) {
 		this.corpo = corpo;
 	}
-	public String getData() {
+	public Date getData() {
 		return data;
 	}
-	public void setData(String data) {
+	public void setData(Date data) {
 		this.data = data;
 	}
 	

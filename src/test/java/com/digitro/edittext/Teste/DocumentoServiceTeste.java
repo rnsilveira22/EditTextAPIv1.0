@@ -14,7 +14,7 @@ import com.digitro.edittext.service.DocumentoService;
 public class DocumentoServiceTeste {
 
 	private DocumentoService documentoService;
-	// testes unitários
+	
 
 	@Before
 	public void before() {
@@ -31,6 +31,8 @@ public class DocumentoServiceTeste {
 		}
 	}
 
+	// Testes unitários
+	
 	@Test
 	public void deveLancarErroQuandoSalvaDocumentoComId() {
 		Documento documento = new Documento();
@@ -44,7 +46,7 @@ public class DocumentoServiceTeste {
 		} catch (RuntimeException e) {
 			Assert.assertEquals("Ao salva um documento o ID deve ser nulo", e.getMessage());
 		}
-		// pronto não mexer
+
 	}
 
 	@Test
@@ -64,7 +66,7 @@ public class DocumentoServiceTeste {
 		} catch (RuntimeException e) {
 			Assert.assertEquals("O titulo é inválido", e.getMessage());
 		}
-		// pronto não mexer
+		
 	}
 
 	@Test
@@ -82,10 +84,10 @@ public class DocumentoServiceTeste {
 		} catch (RuntimeException e) {
 			Assert.assertEquals("O corpo é inválido", e.getMessage());
 		}
-		// pronto não mexer
+		
 	}
 
-	// Teste integracao
+	// Teste integracão
 
 	@Test
 	public void deveSalvarUmDocumentoValido() {
@@ -97,7 +99,7 @@ public class DocumentoServiceTeste {
 
 		Assert.assertNotNull(documento.getId());
 		Assert.assertNotNull(documento.getData());
-		// pronto não mexer
+		
 	}
 
 	@Test
@@ -114,7 +116,7 @@ public class DocumentoServiceTeste {
 		listarTodos = documentoService.listar();
 		Assert.assertEquals(1, listarTodos.size());
 
-		// pronto não mexer
+		
 	}
 
 	@Test
@@ -166,9 +168,35 @@ public class DocumentoServiceTeste {
 		String corpo = "";
 		ArrayList<Documento> listaResultados = documentoService.listar(titulo, corpo);
 		
+		
 		Assert.assertEquals(1,((long)listaResultados.size()));
+		Assert.assertNotNull(listaResultados.get(0).getId());
+		Assert.assertNotNull(listaResultados.get(0).getData());
+		Assert.assertTrue(!titulo.contains(listaResultados.get(0).getTitulo()));
 		
 		
+		
+		
+	}
+
+	@Test
+	public void deveAtulizarDocumentoArmazenado() {
+		
+		Documento documento1 = new Documento();
+		documento1.setTitulo("Teste de Atualizar Documento 001");
+		documento1.setCorpo("Corpo do documento 001 Teste de busca por filtros 001");
+		Documento documento2 = new Documento();
+		documento2.setTitulo("Teste de Atualizar Documento 002");
+		documento2.setCorpo("Corpo do documento 002 Teste de busca por filtros 002");
+		Documento documento3 = new Documento();
+		documento3.setTitulo("Teste de Atualizar Documento 003");
+		documento3.setCorpo("zzzzzzzzzz   xxxxxxxxxxxxxxxxxx ");	
+		documentoService.salvar(documento1);
+		documentoService.salvar(documento2);
+		documentoService.salvar(documento3);
+		Long id =1l;
+		String titulo = "003";
+		String corpo = "";
 		
 		
 		

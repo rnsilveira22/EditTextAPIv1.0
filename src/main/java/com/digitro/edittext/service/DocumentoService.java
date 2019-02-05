@@ -20,10 +20,13 @@ public class DocumentoService {
 
 	}
 
-	public Documento salvar(Documento documento) {
+	private boolean verificaId (Documento documento) {
+		return documento.getId() == null; 
+	}
+public Documento salvar(Documento documento) {
 
-		if (documento.getId() != null) {
-			throw new RuntimeException("Ao salva um documento o ID deve ser nulo");
+		if (!verificaId(documento)) {
+			throw new RuntimeException("Ao salvar um documento o ID deve ser nulo.");
 		}
 
 		validaTitulo(documento.getTitulo());
@@ -37,8 +40,8 @@ public class DocumentoService {
 	}
 
 	public Documento atulizar(Documento documento) {
-		if (documento.getId() == null) {
-			throw new RuntimeException("Para atulizar é obrigatorio, fornecer um ID");
+		if (verificaId(documento)) {
+			throw new RuntimeException("Ao atualizar um documento o ID não deve ser nulo.");
 		}
 		validaTitulo(documento.getTitulo());
 		validaCorpo(documento.getCorpo());
@@ -68,19 +71,14 @@ public class DocumentoService {
 		documento = documentoDao.listar(id);
 		return documento;
 	}
+
 	public ArrayList<Documento> listar(String titulo, String corpo){
 		ArrayList<Documento> documentos = new ArrayList<Documento>();
 		DocumentoDao documentoDao = new DocumentoDao();
-		documentoDao.listar(titulo,corpo);
+		documentos = documentoDao.listar(titulo,corpo);
+		
+		
 		return documentos;
 	}
-//	public Documento documentoExiste(Documento documento) {
-//
-//		DocumentoDao documentoDao = new DocumentoDao();
-//
-//		documento = documentoDao.buscarPorId(documento.getId());
-//
-//		return documento;
-//	}
 	
 }

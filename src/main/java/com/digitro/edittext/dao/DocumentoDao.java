@@ -84,7 +84,6 @@ public class DocumentoDao {
 		con = ConectaPostgres.conectaPostgres();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		try {
-			System.out.println("entrou no try");
 			String script = "Select * FROM documento WHERE titulo LIKE '%"+titulo+"%'AND corpo LIKE '%"+corpo+"%';";
 			pstmt = con.prepareStatement(script);
 			Documento documento = new Documento();
@@ -98,6 +97,7 @@ public class DocumentoDao {
 				documento.setData(dataString);
 				lista.add(documento);
 			}
+			
 			return lista;
 
 		} catch (Exception e) {

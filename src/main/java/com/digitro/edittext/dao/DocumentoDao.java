@@ -1,6 +1,5 @@
 package com.digitro.edittext.dao;
 
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,10 +15,10 @@ public class DocumentoDao {
 
 	private Connection con = null;
 	private PreparedStatement pstmt = null;
+	private ResultSet rs = null;
 
 	public Documento salva(Documento documento) {
 
-		ResultSet rs = null;
 		try {
 
 			con = ConectaPostgres.conectaPostgres();
@@ -49,53 +48,20 @@ public class DocumentoDao {
 		return null;
 	}
 
-	public List<Documento> listar() {
-		con = ConectaPostgres.conectaPostgres();
-		List<Documento> lista = new ArrayList<>();
-		ResultSet rs = null;
-		
-
-		try {
-			pstmt = con.prepareStatement("SELECT * FROM documento ORDER BY id;");
-			rs = pstmt.executeQuery();
-			while (rs.next()) {
-				Documento documento = new Documento();
-				documento.setId(rs.getLong("id"));
-				documento.setTitulo(rs.getString("titulo"));
-				documento.setCorpo(rs.getString("corpo"));
-				documento.setData(rs.getTimestamp("Data"));
-				lista.add(documento);
-
-			}
-			pstmt.close();
-
-		} catch (Exception e) {
-			System.err.println(e);
-			e.printStackTrace();
-		} finally {
-			ConectaPostgres.desconectaPostgres(con);
-
-		}
-		return lista;
-	}
-
 	public List<Documento> listar(String titulo, String corpo) {
+
 		List<Documento> lista = new ArrayList<>();
-		ResultSet rs = null;
 		con = ConectaPostgres.conectaPostgres();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		try {
-			
+
 			String script = "select * FROM documento WHERE 1 = 1";
-			
-			if(titulo != null && !titulo.isEmpty()) {
+
+			if (titulo != null && !titulo.isEmpty()) {
 				script += " and titulo LIKE '%" + titulo + "%' ";
 			}
-			
-			if(corpo != null && !corpo.isEmpty()) {
+			if (corpo != null && !corpo.isEmpty()) {
 				script += " and corpo LIKE '%" + corpo + "%' ";
 			}
-			
 			pstmt = con.prepareStatement(script);
 			Documento documento = new Documento();
 			rs = pstmt.executeQuery();
@@ -104,27 +70,23 @@ public class DocumentoDao {
 				documento.setId(rs.getLong("id"));
 				documento.setTitulo(rs.getString("titulo"));
 				documento.setCorpo(rs.getString("corpo"));
-				documento.setData(rs.getTimestamp("Data"));
+				documento.setData(rs.getDate("Data"));
 				lista.add(documento);
 			}
-			
 			return lista;
-
 		} catch (Exception e) {
 			System.err.println(e);
 			e.printStackTrace();
 		} finally {
 			ConectaPostgres.desconectaPostgres(con);
-
 		}
 		return null;
 	}
 
 	public Documento get(Long id) {
-		ResultSet rs = null;
 		con = ConectaPostgres.conectaPostgres();
 		Documento documento = null;
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
 		try {
 			pstmt = con.prepareStatement("SELECT * FROM documento WHERE id=?;");
 			pstmt.setLong(1, id);
@@ -135,21 +97,20 @@ public class DocumentoDao {
 				documento.setId(rs.getLong("id"));
 				documento.setTitulo(rs.getString("titulo"));
 				documento.setCorpo(rs.getString("corpo"));
-				documento.setData(rs.getTimestamp("Data"));
+				documento.setData(rs.getDate("Data"));
 			}
 		} catch (Exception e) {
 			System.err.println(e);
 			e.printStackTrace();
 
+		} finally {
+			ConectaPostgres.desconectaPostgres(con);
 		}
 		return documento;
 	}
 
 	public Documento atualiza(Documento documento) {
-
-		ResultSet rs = null;
 		con = ConectaPostgres.conectaPostgres();
-
 		try {
 
 			pstmt = con.prepareStatement(
@@ -164,18 +125,17 @@ public class DocumentoDao {
 				documento.setCorpo(rs.getString("corpo"));
 				documento.setData(rs.getDate("data"));
 			}
-
 		} catch (Exception e) {
 			System.err.println(e);
 			e.printStackTrace();
+		} finally {
+			ConectaPostgres.desconectaPostgres(con);
 		}
-
 		return documento;
 	}
 
 	public void excluir(Long id) {
 		con = ConectaPostgres.conectaPostgres();
-
 		try {
 			pstmt = con.prepareStatement("DELETE FROM documento WHERE id= ?");
 			pstmt.setLong(1, id);
@@ -184,6 +144,8 @@ public class DocumentoDao {
 		} catch (Exception e) {
 			System.err.println(e);
 			e.printStackTrace();
+		} finally {
+			ConectaPostgres.desconectaPostgres(con);
 		}
 	}
 

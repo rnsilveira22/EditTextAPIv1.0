@@ -1,5 +1,6 @@
 package com.digitro.edittext.service;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,36 +9,15 @@ import com.digitro.edittext.model.Documento;
 
 public class DocumentoService {
 	
-	public DocumentoDao dao =  new DocumentoDao();
-			
-
-	private void validaTitulo(String titulo) {
-		if (titulo == null || titulo.isEmpty() || titulo.length() > 50) {
-			throw new RuntimeException("O titulo é inválido");
-		}
-	}
-
-	private void validaCorpo(String corpo) {
-		if (corpo == null || corpo.isEmpty() || corpo.length() > 500) {
-			throw new RuntimeException("O corpo é inválido");
-		}
-
-	}
-
-	private boolean verificaId (Documento documento) {
-		return documento.getId() == null; 
-	}
+	DocumentoDao dao = new DocumentoDao();
+	
 	
 	public Documento salvar(Documento documento) {
-
 		if (!verificaId(documento)) {
 			throw new RuntimeException("Ao salvar um documento o ID deve ser nulo.");
 		}
-
 		validaTitulo(documento.getTitulo());
 		validaCorpo(documento.getCorpo());
-
-		
 		documento = dao.salva(documento);
 
 		return documento;
@@ -62,11 +42,9 @@ public class DocumentoService {
 		documentoDao.excluir(id);
 
 	}
-
-	public List<Documento> listar() {
-		
+	public List<Documento> listar(String titulo,String corpo) {
 		List<Documento> documentos = new ArrayList<>();
-		documentos = dao.listar();
+		documentos = dao.listar(titulo, corpo);
 		return documentos;
 	}
 
@@ -77,10 +55,21 @@ public class DocumentoService {
 		return documento;
 	}
 
-	public List<Documento> listar(String titulo, String corpo){
-		List<Documento> documentos = new ArrayList<>();
-		documentos = dao.listar(titulo,corpo);
-		return documentos;
+	private void validaTitulo(String titulo) {
+		if (titulo == null || titulo.isEmpty() || titulo.length() > 50){
+			throw new RuntimeException("O titulo é inválido");
+		}
+	}
+
+	private void validaCorpo(String corpo) {
+		if (corpo == null || corpo.isEmpty() || corpo.length() > 500) {
+			throw new RuntimeException("O corpo é inválido");
+		}
+
+	}
+
+	private boolean verificaId (Documento documento) {
+		return documento.getId() == null; 
 	}
 	
 }

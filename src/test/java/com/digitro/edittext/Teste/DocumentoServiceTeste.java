@@ -2,12 +2,13 @@ package com.digitro.edittext.Teste;
 
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import com.digitro.edittext.model.Documento;
 import com.digitro.edittext.service.DocumentoService;
@@ -15,25 +16,20 @@ import com.digitro.edittext.service.DocumentoService;
 public class DocumentoServiceTeste {
 
 	private DocumentoService documentoService;
+	
+
 
 	@Before
 	public void before() {
 		this.documentoService = new DocumentoService();
 		limparDocumentoNoBanco();
-
-	}
-
-	private void limparDocumentoNoBanco() {
-		List<Documento> documentos = this.documentoService.listar();
-		for (Documento documento : documentos) {
-			documentoService.exclui(documento.getId());
-		}
 	}
 
 	// Testes unitários
 
 	@Test
 	public void deveLancarErroQuandoSalvaDocumentoComId() {
+
 		Documento documento = new Documento();
 		documento.setId(1l);
 		documento.setTitulo("xx");
@@ -92,14 +88,14 @@ public class DocumentoServiceTeste {
 
 	@Test
 	public void deveRetornarUmListaComTodosDocumentosArmazenados() {
-		List<Documento> listarTodos = documentoService.listar();
+		List<Documento> listarTodos = documentoService.listar(null,null);
 		Assert.assertNotNull(listarTodos);
 		Assert.assertTrue(listarTodos.isEmpty());
 		Documento documento = new Documento();
 		documento.setTitulo("teste lista");
 		documento.setCorpo("Testelista");
 		documentoService.salvar(documento);
-		listarTodos = documentoService.listar();
+		listarTodos = documentoService.listar(null,null);
 		Assert.assertEquals(1, listarTodos.size());
 	}
 
@@ -114,7 +110,7 @@ public class DocumentoServiceTeste {
 		Assert.assertNotNull(documentoNovo.getData());
 		Assert.assertEquals(documento.getTitulo(), documentoNovo.getTitulo());
 		Assert.assertEquals(documento.getCorpo(), documentoNovo.getCorpo());
-		
+
 	}
 
 	@Test
@@ -128,6 +124,23 @@ public class DocumentoServiceTeste {
 		documentoService.exclui(documentoNovo.getId());
 		documento = documentoService.get(documentoNovo.getId());
 		Assert.assertNull(documento);
+	}
+
+	@Test
+	public void deveAtulizarDocumentoArmazenado() {
+		Documento documento1 = new Documento();
+		documento1.setTitulo("Teste de Atualizar Documento 001");
+		documento1.setCorpo("Corpo do documento 001 Teste de busca por filtros 001");
+		documento1 = documentoService.salvar(documento1);
+		Documento documentoParaAtulizar = new Documento();
+		documentoParaAtulizar.setId(documento1.getId());
+		documentoParaAtulizar.setTitulo("003");
+		documentoParaAtulizar.setCorpo("Corpo do documento 003");
+		Documento documentoNovo = new Documento();
+		documentoNovo = documentoService.atulizar(documentoParaAtulizar);
+		Assert.assertNotEquals(documento1.getCorpo(), documentoNovo.getCorpo());
+		Assert.assertNotEquals(documento1.getTitulo(), documentoNovo.getTitulo());
+		Assert.assertEquals(documento1.getId(), documentoNovo.getId());
 	}
 
 	@Test
@@ -151,22 +164,23 @@ public class DocumentoServiceTeste {
 		Assert.assertNotNull(listaResultados.get(0).getId());
 		Assert.assertNotNull(listaResultados.get(0).getData());
 		Assert.assertTrue(!titulo.contains(listaResultados.get(0).getTitulo()));
+
 	}
 
-	@Test
-	public void deveAtulizarDocumentoArmazenado() {
-		Documento documento1 = new Documento();
-		documento1.setTitulo("Teste de Atualizar Documento 001");
-		documento1.setCorpo("Corpo do documento 001 Teste de busca por filtros 001");
-		documento1 = documentoService.salvar(documento1);
-		Documento documentoParaAtulizar = new Documento();
-		documentoParaAtulizar.setId(documento1.getId());
-		documentoParaAtulizar.setTitulo("003");
-		documentoParaAtulizar.setCorpo("Corpo do documento 003");
-		Documento documentoNovo = new Documento();
-		documentoNovo = documentoService.atulizar(documentoParaAtulizar);
-		Assert.assertNotEquals(documento1.getCorpo(), documentoNovo.getCorpo());
-		Assert.assertNotEquals(documento1.getTitulo(), documentoNovo.getTitulo());
-		Assert.assertEquals(documento1.getId(), documentoNovo.getId());
+//	@After
+//	public void after() {
+//		this.documentoService = new DocumentoService();
+//		limparDocumentoNoBanco();
+//	}
+
+	private void limparDocumentoNoBanco() {
+		String titulo = null;
+		String corpo = null;
+		List<Documento> documentos = documentoService.listar(titulo, corpo);
+		for (Documento documento: documentos) {
+			documentoService.exclui(documento.getId());
+		}
+
 	}
+
 }

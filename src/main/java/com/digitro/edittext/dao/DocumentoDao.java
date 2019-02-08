@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,15 +12,14 @@ import com.digitro.edittext.model.Documento;
 
 public class DocumentoDao {
 
-	private Connection con = null;
-	private PreparedStatement pstmt = null;
-	private ResultSet rs = null;
+	
 
 	public Documento salva(Documento documento) {
-
-		try {
-
-			con = ConectaPostgres.conectaPostgres();
+		
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try(Connection con = ConectaPostgres.conectaPostgres();) {
 			pstmt = con.prepareStatement("INSERT INTO documento(titulo,corpo) VALUES(?,?);",
 					Statement.RETURN_GENERATED_KEYS);
 			pstmt.setString(1, documento.getTitulo());
@@ -41,18 +39,18 @@ public class DocumentoDao {
 		} catch (Exception e) {
 			System.err.println("ERRO: ao adicionar novo documento \n" + e);
 			e.printStackTrace();
-		} finally {
-			ConectaPostgres.desconectaPostgres(con);
-
-		}
+		} 
 		return null;
 	}
 
 	public List<Documento> listar(String titulo, String corpo) {
-
+		
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		List<Documento> lista = new ArrayList<>();
-		con = ConectaPostgres.conectaPostgres();
-		try {
+		
+		
+		try(Connection con = ConectaPostgres.conectaPostgres();) {
 
 			String script = "select * FROM documento WHERE 1 = 1";
 
@@ -63,10 +61,10 @@ public class DocumentoDao {
 				script += " and corpo LIKE '%" + corpo + "%' ";
 			}
 			pstmt = con.prepareStatement(script);
-			Documento documento = new Documento();
+			
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
-
+				Documento documento = new Documento();
 				documento.setId(rs.getLong("id"));
 				documento.setTitulo(rs.getString("titulo"));
 				documento.setCorpo(rs.getString("corpo"));
@@ -77,41 +75,41 @@ public class DocumentoDao {
 		} catch (Exception e) {
 			System.err.println(e);
 			e.printStackTrace();
-		} finally {
-			ConectaPostgres.desconectaPostgres(con);
-		}
+		} 
 		return null;
 	}
 
 	public Documento get(Long id) {
-		con = ConectaPostgres.conectaPostgres();
-		Documento documento = null;
-
-		try {
+		
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Documento documento = new Documento();
+		try(Connection con = ConectaPostgres.conectaPostgres();) {
 			pstmt = con.prepareStatement("SELECT * FROM documento WHERE id=?;");
 			pstmt.setLong(1, id);
 			rs = pstmt.executeQuery();
-
+			
 			while (rs.next()) {
-
+				
 				documento.setId(rs.getLong("id"));
 				documento.setTitulo(rs.getString("titulo"));
 				documento.setCorpo(rs.getString("corpo"));
 				documento.setData(rs.getDate("Data"));
 			}
+			return documento;
 		} catch (Exception e) {
 			System.err.println(e);
 			e.printStackTrace();
 
-		} finally {
-			ConectaPostgres.desconectaPostgres(con);
-		}
+		} 
 		return documento;
 	}
 
 	public Documento atualiza(Documento documento) {
-		con = ConectaPostgres.conectaPostgres();
-		try {
+		
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try(Connection con = ConectaPostgres.conectaPostgres();) {
 
 			pstmt = con.prepareStatement(
 					"UPDATE documento SET titulo= ?,corpo= ? WHERE id= ? RETURNING id,titulo,corpo,data ;");
@@ -128,15 +126,15 @@ public class DocumentoDao {
 		} catch (Exception e) {
 			System.err.println(e);
 			e.printStackTrace();
-		} finally {
-			ConectaPostgres.desconectaPostgres(con);
 		}
 		return documento;
 	}
 
 	public void excluir(Long id) {
-		con = ConectaPostgres.conectaPostgres();
-		try {
+		
+		PreparedStatement pstmt = null;
+		
+		try(Connection con = ConectaPostgres.conectaPostgres();) {
 			pstmt = con.prepareStatement("DELETE FROM documento WHERE id= ?");
 			pstmt.setLong(1, id);
 			pstmt.execute();
@@ -144,9 +142,7 @@ public class DocumentoDao {
 		} catch (Exception e) {
 			System.err.println(e);
 			e.printStackTrace();
-		} finally {
-			ConectaPostgres.desconectaPostgres(con);
-		}
+		} 
 	}
 
 }

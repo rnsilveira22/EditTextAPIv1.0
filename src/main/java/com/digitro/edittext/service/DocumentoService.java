@@ -1,11 +1,11 @@
 package com.digitro.edittext.service;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.digitro.edittext.dao.DocumentoDao;
 import com.digitro.edittext.model.Documento;
+
 
 public class DocumentoService {
 	
@@ -38,13 +38,10 @@ public class DocumentoService {
 	}
 
 	public void exclui(Long id) {
-		DocumentoDao documentoDao = new DocumentoDao();
-		documentoDao.excluir(id);
-
+		dao.excluir(id);
 	}
 	public List<Documento> listar(String titulo,String corpo) {
-		List<Documento> documentos = new ArrayList<>();
-		documentos = dao.listar(titulo, corpo);
+		List<Documento> documentos = dao.listar(titulo, corpo);
 		return documentos;
 	}
 

@@ -1,17 +1,15 @@
-package com.digitro.edittext.Teste;
+package com.digitro.edittext.service;
+
 
 import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import com.digitro.edittext.model.Documento;
-import com.digitro.edittext.service.DocumentoService;
 
 public class DocumentoServiceTeste {
 
@@ -43,7 +41,7 @@ public class DocumentoServiceTeste {
 		}
 
 	}
-
+	
 	@Test
 	public void deveLancaErroQuantoTituloInvalido() {
 		Documento documento = new Documento();
@@ -84,6 +82,12 @@ public class DocumentoServiceTeste {
 		documento = documentoService.salvar(documento);
 		Assert.assertNotNull(documento.getId());
 		Assert.assertNotNull(documento.getData());
+		
+		Documento documentoNovo = documentoService.get(documento.getId());
+		Assert.assertEquals(documento.getId(),documentoNovo.getId());
+		Assert.assertEquals(documento.getTitulo(),documentoNovo.getTitulo());
+		Assert.assertEquals(documento.getCorpo(),documentoNovo.getCorpo());
+		Assert.assertEquals(documento.getData(),documentoNovo.getData());
 	}
 
 	@Test
@@ -105,7 +109,8 @@ public class DocumentoServiceTeste {
 		documento.setTitulo("Teste de buscar por ID");
 		documento.setCorpo("Corpo do documento");
 		Documento documentoNovo = null;
-		documentoNovo = documentoService.salvar(documento);
+		documento = documentoService.salvar(documento);
+		documentoNovo = documentoService.get(documento.getId());
 		Assert.assertNotNull(documentoNovo.getId());
 		Assert.assertNotNull(documentoNovo.getData());
 		Assert.assertEquals(documento.getTitulo(), documentoNovo.getTitulo());
@@ -119,11 +124,15 @@ public class DocumentoServiceTeste {
 		documento.setTitulo("Teste de deletar Documento");
 		documento.setCorpo("Corpo do documento");
 
-		Documento documentoNovo = documentoService.salvar(documento);
-		Assert.assertNotNull(documentoNovo);
-		documentoService.exclui(documentoNovo.getId());
-		documento = documentoService.get(documentoNovo.getId());
-		Assert.assertNull(documento);
+		documento = documentoService.salvar(documento);
+		Assert.assertNotNull(documento);
+		Assert.assertNotNull(documento.getId());
+		Assert.assertNotNull(documento.getData());
+		
+		documentoService.exclui(documento.getId());
+		Documento resultado = null;
+		resultado = documentoService.get(documento.getId());
+		Assert.assertNotNull(resultado);
 	}
 
 	@Test
@@ -157,8 +166,9 @@ public class DocumentoServiceTeste {
 		documentoService.salvar(documento1);
 		documentoService.salvar(documento2);
 		documentoService.salvar(documento3);
+		
 		String titulo = "003";
-		String corpo = "";
+		String corpo = "zz";
 		List<Documento> listaResultados = documentoService.listar(titulo, corpo);
 		Assert.assertEquals(1, ((long) listaResultados.size()));
 		Assert.assertNotNull(listaResultados.get(0).getId());
@@ -167,16 +177,11 @@ public class DocumentoServiceTeste {
 
 	}
 
-//	@After
-//	public void after() {
-//		this.documentoService = new DocumentoService();
-//		limparDocumentoNoBanco();
-//	}
-
 	private void limparDocumentoNoBanco() {
 		String titulo = null;
 		String corpo = null;
 		List<Documento> documentos = documentoService.listar(titulo, corpo);
+		
 		for (Documento documento: documentos) {
 			documentoService.exclui(documento.getId());
 		}

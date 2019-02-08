@@ -14,12 +14,12 @@ public class DocumentoDao {
 
 	
 
-	public Documento salva(Documento documento) {
+	public Documento salvar(Documento documento) throws DaoException {
 		
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		
-		try(Connection con = ConectaPostgres.conectaPostgres();) {
+		try(Connection con = ConectaPostgres.conectaPostgres()) {
 			pstmt = con.prepareStatement("INSERT INTO documento(titulo,corpo) VALUES(?,?);",
 					Statement.RETURN_GENERATED_KEYS);
 			pstmt.setString(1, documento.getTitulo());
@@ -30,17 +30,15 @@ public class DocumentoDao {
 			while (rs.next()) {
 				documento.setId(rs.getLong("id"));
 				documento.setData(rs.getDate("data"));
-
 			}
 
 			pstmt.close();
 			return documento;
 
 		} catch (Exception e) {
-			System.err.println("ERRO: ao adicionar novo documento \n" + e);
-			e.printStackTrace();
+			throw new DaoException("", e); //TODO: arrumar
 		} 
-		return null;
+		
 	}
 
 	public List<Documento> listar(String titulo, String corpo) {
@@ -105,7 +103,7 @@ public class DocumentoDao {
 		return documento;
 	}
 
-	public Documento atualiza(Documento documento) {
+	public Documento atualizar(Documento documento) {
 		
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;

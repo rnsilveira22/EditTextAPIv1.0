@@ -8,8 +8,11 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import com.digitro.edittext.dao.DocumentoDao;
 import com.digitro.edittext.model.Documento;
@@ -17,8 +20,8 @@ import com.digitro.edittext.model.Documento;
 
 public class DocumentoServiceMockTeste {
 
-	// Teste integracão
-
+	// Teste integracão 
+	
 	@Test
 	public void deveSalvarUmDocumentoValido() {
 		Documento documento = new Documento();
@@ -31,10 +34,10 @@ public class DocumentoServiceMockTeste {
 		documentoRetorno.setTitulo("teste final");
 		documentoRetorno.setCorpo("corpo valido");
 
-		DocumentoDao documentoDao = Mockito.mock(DocumentoDao.class);
+		Mockito.mock(DocumentoDao.class);
 
 		DocumentoService documentoService = new DocumentoService();
-		documentoService.dao = documentoDao;
+
 		when(documentoService.salvar(documento)).thenReturn(documentoRetorno);
 
 		Documento resultado = documentoService.salvar(documento);
@@ -50,7 +53,7 @@ public class DocumentoServiceMockTeste {
 	public void deveRetornarUmListaComTodosDocumentosArmazenados() {
 		DocumentoService documentoService = new DocumentoService();
 		DocumentoDao documentoDao = Mockito.mock(DocumentoDao.class);
-		documentoService.dao = documentoDao;
+//		documentoService.dao = documentoDao;
 		List<Documento> listaTodos = new ArrayList<>();
 		when(documentoService.listar(null, null)).thenReturn(listaTodos);
 
@@ -76,7 +79,7 @@ public class DocumentoServiceMockTeste {
 
 		DocumentoDao documentoDao = Mockito.mock(DocumentoDao.class);
 		DocumentoService documentoService = new DocumentoService();
-		documentoService.dao = documentoDao;
+		//documentoService.dao = documentoDao;
 		when(documentoService.get(documentoRetorno.getId())).thenReturn(documentoRetorno);
 		Documento resultado = documentoService.get(documentoRetorno.getId());
 
@@ -110,8 +113,8 @@ public class DocumentoServiceMockTeste {
 	}
 
 	@Test
-	public void deveAtulizarDocumentoArmazenado() {
-		
+	public void deveAtualizarDocumentoArmazenado() {
+			
 		Documento documento = new Documento();
 		documento.setId(1l);
 		documento.setTitulo("Teste de Atualizar Documento 001");
@@ -123,17 +126,18 @@ public class DocumentoServiceMockTeste {
 		documentoAtualizado.setCorpo("Corpo do documento atualizado");
 		documentoAtualizado.setData(new Date());
 		
-		DocumentoDao documentoDao = Mockito.mock(DocumentoDao.class);
-		DocumentoService documentoService = new DocumentoService();
-		documentoService.dao = documentoDao;
-		when(documentoService.atulizar(documento)).thenReturn(documentoAtualizado);
+		DocumentoDao documentoDao = Mockito.mock(DocumentoDao.class);	
+		when(documentoDao.atualizar(documento)).thenReturn(documentoAtualizado);
+
+		DocumentoService documentoService = new DocumentoService(documentoDao);
 		Documento documentoNovo = new Documento();
-		documentoNovo = documentoService.atulizar(documento);
+		documentoNovo = documentoService.atualizar(documento);
 		Assert.assertNotEquals(documento, documentoNovo);
 		Assert.assertEquals(documentoAtualizado.getCorpo(), documentoNovo.getCorpo());
 		Assert.assertEquals(documentoAtualizado.getTitulo(), documentoNovo.getTitulo());
 		Assert.assertEquals(documentoAtualizado.getId(), documentoNovo.getId());
 		Assert.assertEquals(documentoNovo.getData(), documentoAtualizado.getData());
+		
 	}
 
 	@Test
@@ -164,7 +168,7 @@ public class DocumentoServiceMockTeste {
 		
 		DocumentoService documentoService = new DocumentoService();
 		DocumentoDao documentoDao = Mockito.mock(DocumentoDao.class);
-		documentoService.dao = documentoDao;
+//		documentoService.dao = documentoDao;
 		when(documentoService.listar(titulo, corpo)).thenReturn(documentosFiltro);
 		List<Documento> listaResultados = documentoService.listar(titulo, corpo);
 		

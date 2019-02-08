@@ -1,6 +1,5 @@
 package com.digitro.edittext.service;
 
-
 import static org.junit.Assert.fail;
 
 import java.util.List;
@@ -14,8 +13,6 @@ import com.digitro.edittext.model.Documento;
 public class DocumentoServiceTeste {
 
 	private DocumentoService documentoService;
-	
-
 
 	@Before
 	public void before() {
@@ -24,7 +21,7 @@ public class DocumentoServiceTeste {
 	}
 
 	// Testes unitários
-
+	
 	@Test
 	public void deveLancarErroQuandoSalvaDocumentoComId() {
 
@@ -41,9 +38,8 @@ public class DocumentoServiceTeste {
 		}
 
 	}
-	
 	@Test
-	public void deveLancaErroQuantoTituloInvalido() {
+	public void deveLancarErroQuandoSalvarDocumentoComTituloInvalido() {
 		Documento documento = new Documento();
 		documento.setTitulo("");
 		documento.setCorpo("Corpo texto pequeno");
@@ -53,25 +49,104 @@ public class DocumentoServiceTeste {
 			documentoService.salvar(documento);
 			fail();
 		} catch (RuntimeException e) {
-			Assert.assertEquals("O titulo é inválido", e.getMessage());
+			Assert.assertEquals("O titulo é inválido: titulo deve conter de 1 a 50 caracteres", e.getMessage());
 		}
 	}
 
 	@Test
-	public void deveLancaErroQuantoCorpoInvalido() {
+	public void deveLancaErroQuandoSalvarDocumentoComCorpoInvalido() {
 		Documento documento = new Documento();
 		documento.setTitulo("54543123123");
-		documento.setCorpo("");
 		Assert.assertNotNull(documento);
+
+		documento.setCorpo("");
 		try {
 			documentoService.salvar(documento);
 			fail();
 		} catch (RuntimeException e) {
-			Assert.assertEquals("O corpo é inválido", e.getMessage());
+			Assert.assertEquals("O corpo é inválido: corpo deve conter de 1 a 500 caracteres", e.getMessage());
+		}
+		
+		documento.setCorpo(null);
+		try {
+			documentoService.salvar(documento);
+			fail();
+		} catch (RuntimeException e) {
+			Assert.assertEquals("O corpo é inválido: corpo deve conter de 1 a 500 caracteres", e.getMessage());
+		}
+		
+		String corpoMaisDe500Caracteres = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
+				+ "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
+				+ "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
+				+ "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
+				+ "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012234";
+		
+		documento.setCorpo(corpoMaisDe500Caracteres);
+		try {
+			documentoService.salvar(documento);
+			fail();
+		} catch (RuntimeException e) {
+			Assert.assertEquals("O corpo é inválido: corpo deve conter de 1 a 500 caracteres", e.getMessage());
 		}
 
 	}
+	
+	@Test
+	public void deveLancarErroQuantoAtualizarDocumentoSemId() {
+	
+		Documento documento = new Documento();
+		documento.setTitulo("Titulo do documento");
+		documento.setCorpo("Corpo texto pequeno");
 
+		try {
+			documentoService.atualizar(documento);
+			fail();
+		} catch (RuntimeException e) {
+			Assert.assertEquals("Ao atualizar um documento o ID não deve ser nulo.", e.getMessage());
+		}
+	}
+	@Test
+	public void deveLancarErroQuandoAtualizarDocumentoComTituloInvalido() {
+		Documento documento = new Documento();
+		documento.setId(1l);
+		documento.setTitulo("");
+		documento.setCorpo("Corpo texto pequeno");
+		Assert.assertNotNull(documento);
+		DocumentoService documentoService = new DocumentoService();
+		try {
+			documentoService.atualizar(documento);
+			fail();
+		} catch (RuntimeException e) {
+			Assert.assertEquals("O titulo é inválido: titulo deve conter de 1 a 50 caracteres", e.getMessage());
+		}
+	}
+	@Test
+	public void deveLancarErroQuandoAtualizarDocumentoComCorpoInvalido() {
+		Documento documento = new Documento();
+		documento.setId(1l);
+		documento.setTitulo("Titulo do documento");
+		documento.setCorpo("");
+		Assert.assertNotNull(documento);
+		DocumentoService documentoService = new DocumentoService();
+		try {
+			documentoService.atualizar(documento);
+			fail();
+		} catch (RuntimeException e) {
+			Assert.assertEquals("O corpo é inválido: corpo deve conter de 1 a 500 caracteres", e.getMessage());
+		}
+	}
+	@Test
+	public void deveLancarErroQuandoExcluirDocumentoSemId() {
+		DocumentoService documentoService = new DocumentoService();
+		Long id = null;
+
+		try {
+			documentoService.exclui(id);
+			fail();
+		} catch (RuntimeException e) {
+			Assert.assertEquals("Ao excluir um documento o ID não deve ser nulo.", e.getMessage());
+		}
+	}
 	// Teste integracão
 
 	@Test
@@ -82,24 +157,24 @@ public class DocumentoServiceTeste {
 		documento = documentoService.salvar(documento);
 		Assert.assertNotNull(documento.getId());
 		Assert.assertNotNull(documento.getData());
-		
+
 		Documento documentoNovo = documentoService.get(documento.getId());
-		Assert.assertEquals(documento.getId(),documentoNovo.getId());
-		Assert.assertEquals(documento.getTitulo(),documentoNovo.getTitulo());
-		Assert.assertEquals(documento.getCorpo(),documentoNovo.getCorpo());
-		Assert.assertEquals(documento.getData(),documentoNovo.getData());
+		Assert.assertEquals(documento.getId(), documentoNovo.getId());
+		Assert.assertEquals(documento.getTitulo(), documentoNovo.getTitulo());
+		Assert.assertEquals(documento.getCorpo(), documentoNovo.getCorpo());
+		Assert.assertEquals(documento.getData(), documentoNovo.getData());
 	}
 
 	@Test
 	public void deveRetornarUmListaComTodosDocumentosArmazenados() {
-		List<Documento> listarTodos = documentoService.listar(null,null);
+		List<Documento> listarTodos = documentoService.listar(null, null);
 		Assert.assertNotNull(listarTodos);
 		Assert.assertTrue(listarTodos.isEmpty());
 		Documento documento = new Documento();
 		documento.setTitulo("teste lista");
 		documento.setCorpo("Testelista");
 		documentoService.salvar(documento);
-		listarTodos = documentoService.listar(null,null);
+		listarTodos = documentoService.listar(null, null);
 		Assert.assertEquals(1, listarTodos.size());
 	}
 
@@ -117,7 +192,16 @@ public class DocumentoServiceTeste {
 		Assert.assertEquals(documento.getCorpo(), documentoNovo.getCorpo());
 
 	}
-
+	@Test
+	public void deveErroQuandoBuscarUmDocumentoPesquisadoPeloIdComIdInvalidao() {
+		Long id = null;
+		try {
+			documentoService.get(id);
+			fail();
+		} catch (RuntimeException e) {
+			Assert.assertEquals("Ao buscar um documento o ID não deve ser nulo.", e.getMessage());
+		}
+	}
 	@Test
 	public void deveVerificarSeFoiExcluido() {
 		Documento documento = new Documento();
@@ -128,7 +212,7 @@ public class DocumentoServiceTeste {
 		Assert.assertNotNull(documento);
 		Assert.assertNotNull(documento.getId());
 		Assert.assertNotNull(documento.getData());
-		
+
 		documentoService.exclui(documento.getId());
 		Documento resultado = null;
 		resultado = documentoService.get(documento.getId());
@@ -146,7 +230,7 @@ public class DocumentoServiceTeste {
 		documentoParaAtulizar.setTitulo("003");
 		documentoParaAtulizar.setCorpo("Corpo do documento 003");
 		Documento documentoNovo = new Documento();
-		documentoNovo = documentoService.atulizar(documentoParaAtulizar);
+		documentoNovo = documentoService.atualizar(documentoParaAtulizar);
 		Assert.assertNotEquals(documento1.getCorpo(), documentoNovo.getCorpo());
 		Assert.assertNotEquals(documento1.getTitulo(), documentoNovo.getTitulo());
 		Assert.assertEquals(documento1.getId(), documentoNovo.getId());
@@ -166,7 +250,7 @@ public class DocumentoServiceTeste {
 		documentoService.salvar(documento1);
 		documentoService.salvar(documento2);
 		documentoService.salvar(documento3);
-		
+
 		String titulo = "003";
 		String corpo = "zz";
 		List<Documento> listaResultados = documentoService.listar(titulo, corpo);
@@ -181,8 +265,8 @@ public class DocumentoServiceTeste {
 		String titulo = null;
 		String corpo = null;
 		List<Documento> documentos = documentoService.listar(titulo, corpo);
-		
-		for (Documento documento: documentos) {
+
+		for (Documento documento : documentos) {
 			documentoService.exclui(documento.getId());
 		}
 

@@ -1,6 +1,5 @@
 package com.digitro.edittext.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -13,7 +12,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import com.digitro.edittext.model.Documento;
-import com.digitro.edittext.service.DocumentoService;
 
 @Path("/documento")
 public class DocumentoController {
@@ -24,10 +22,10 @@ public class DocumentoController {
 	@PathParam("/{titulo},{corpo}")
 	@Produces("application/json ;charset=UTF-8" )
 	public List<Documento> getDocumentos() {
-		DocumentoService documentoServico = new DocumentoService();
-		List<Documento> documentos = documentoServico.listar(null, null);		 
+		//DocumentoService documentoServico = new DocumentoService();
+		//ist<Documento> documentos = documentoServico.listar(null, null);		 
 	
-		return documentos;
+		return null;
 	
 	
 	}

@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.digitro.edittext.dao.DaoException;
 import com.digitro.edittext.dao.DocumentoDao;
 import com.digitro.edittext.model.Documento;
 
@@ -23,7 +24,7 @@ public class DocumentoServiceMockTeste {
 	// Teste integracão 
 	
 	@Test
-	public void deveSalvarUmDocumentoValido() {
+	public void deveSalvarUmDocumentoValido() throws DaoException {
 		Documento documento = new Documento();
 		documento.setTitulo("teste final");
 		documento.setCorpo("corpo valido");
@@ -34,13 +35,10 @@ public class DocumentoServiceMockTeste {
 		documentoRetorno.setTitulo("teste final");
 		documentoRetorno.setCorpo("corpo valido");
 
-		Mockito.mock(DocumentoDao.class);
+		DocumentoDao documentoDao = Mockito.mock(DocumentoDao.class);
+		when(documentoDao.salvar(documento)).thenReturn(documentoRetorno);
 
-		DocumentoService documentoService = new DocumentoService();
-
-		when(documentoService.salvar(documento)).thenReturn(documentoRetorno);
-
-		Documento resultado = documentoService.salvar(documento);
+		Documento resultado = documentoDao.salvar(documento);
 
 		Assert.assertSame(resultado, documentoRetorno);
 		Assert.assertEquals(resultado.getId(), resultado.getId());
@@ -50,12 +48,10 @@ public class DocumentoServiceMockTeste {
 	}
 
 	@Test
-	public void deveRetornarUmListaComTodosDocumentosArmazenados() {
-		DocumentoService documentoService = new DocumentoService();
+	public void deveRetornarUmListaComTodosDocumentosArmazenados() throws DaoException {
 		DocumentoDao documentoDao = Mockito.mock(DocumentoDao.class);
-//		documentoService.dao = documentoDao;
 		List<Documento> listaTodos = new ArrayList<>();
-		when(documentoService.listar(null, null)).thenReturn(listaTodos);
+		when(documentoDao.listar(null, null)).thenReturn(listaTodos);
 
 		Assert.assertNotNull(listaTodos);
 		Assert.assertTrue(listaTodos.isEmpty());
@@ -64,13 +60,13 @@ public class DocumentoServiceMockTeste {
 		documento.setCorpo("Testelista");
 		listaTodos.add(documento);
 
-		documentoService.listar(null, null);
+		documentoDao.listar(null, null);
 		Assert.assertEquals(1, listaTodos.size());
 		assertEquals(listaTodos.get(0), documento);
 	}
 
 	@Test
-	public void deveRetornarUmDocumentoPesquisadoPeloId() {
+	public void deveRetornarUmDocumentoPesquisadoPeloId() throws DaoException {
 		Documento documentoRetorno = new Documento();
 		documentoRetorno.setId(1l);
 		documentoRetorno.setData(new Date());
@@ -78,10 +74,8 @@ public class DocumentoServiceMockTeste {
 		documentoRetorno.setCorpo("corpo valido");
 
 		DocumentoDao documentoDao = Mockito.mock(DocumentoDao.class);
-		DocumentoService documentoService = new DocumentoService();
-		//documentoService.dao = documentoDao;
-		when(documentoService.get(documentoRetorno.getId())).thenReturn(documentoRetorno);
-		Documento resultado = documentoService.get(documentoRetorno.getId());
+		when(documentoDao.get(documentoRetorno.getId())).thenReturn(documentoRetorno);
+		Documento resultado = documentoDao.get(documentoRetorno.getId());
 
 		Assert.assertNotNull(resultado.getId());
 		Assert.assertNotNull(resultado.getData());
@@ -104,16 +98,16 @@ public class DocumentoServiceMockTeste {
 //		Documento documentoRetorno = null;
 //		DocumentoService documentoService = new DocumentoService();
 //		DocumentoDao documentoDao = Mockito.mock(DocumentoDao.class);
-//		documentoService.dao = documentoDao;
-//		when(documentoService.exclui(documento.getId())).thenReturn(documentoRetorno);
-//		documentoService.exclui(documento.getId());
+//		
+//		when(documentoDao.excluir(documento.getId())).thenReturn(documentoRetorno);
+//		documentoDao.excluir(documento.getId());
 //		
 //		Assert.assertNotNull(documento);
 //		Assert.assertNull(documentoRetorno);
 	}
 
 	@Test
-	public void deveAtualizarDocumentoArmazenado() {
+	public void deveAtualizarDocumentoArmazenado() throws DaoException {
 			
 		Documento documento = new Documento();
 		documento.setId(1l);
@@ -141,7 +135,7 @@ public class DocumentoServiceMockTeste {
 	}
 
 	@Test
-	public void deveRetornarListaDeDocumentosBuscadosPelosFiltrosTituloEOuCorpo() {
+	public void deveRetornarListaDeDocumentosBuscadosPelosFiltrosTituloEOuCorpo() throws DaoException {
 		Documento documento1 = new Documento();
 		documento1.setId(1l);
 		documento1.setTitulo("Teste de Buscar por filtros 001");
@@ -166,11 +160,11 @@ public class DocumentoServiceMockTeste {
 		List<Documento> documentosFiltro = new ArrayList<>();
 		documentosFiltro.add(documento3);
 		
-		DocumentoService documentoService = new DocumentoService();
+		
 		DocumentoDao documentoDao = Mockito.mock(DocumentoDao.class);
-//		documentoService.dao = documentoDao;
-		when(documentoService.listar(titulo, corpo)).thenReturn(documentosFiltro);
-		List<Documento> listaResultados = documentoService.listar(titulo, corpo);
+		when(documentoDao.listar(titulo, corpo)).thenReturn(documentosFiltro);
+		
+		List<Documento> listaResultados = documentoDao.listar(titulo, corpo);
 		
 		Assert.assertEquals(1, ((long) listaResultados.size()));
 		Assert.assertNotNull(listaResultados.get(0).getId());

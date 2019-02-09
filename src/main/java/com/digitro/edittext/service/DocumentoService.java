@@ -34,7 +34,7 @@ public class DocumentoService {
 		return documento;
 	}
 
-	public Documento atualizar(Documento documento) {
+	public Documento atualizar(Documento documento) throws DaoException {
 		if (verificaId(documento.getId())) {
 			throw new RuntimeException("Ao atualizar um documento o ID não deve ser nulo.");
 		}
@@ -44,18 +44,18 @@ public class DocumentoService {
 		return documento;
 	}
 
-	public void exclui(Long id) {
+	public void excluir(Long id) throws DaoException {
 		if (verificaId(id)) {
 			throw new RuntimeException("Ao excluir um documento o ID não deve ser nulo.");
 		}
 		dao.excluir(id);
 	}
-	public List<Documento> listar(String titulo,String corpo) {
+	public List<Documento> listar(String titulo,String corpo) throws DaoException {
 		List<Documento> documentos = dao.listar(titulo, corpo);
 		return documentos;
 	}
 
-	public Documento get(Long id) {
+	public Documento get(Long id) throws DaoException {
 		if (verificaId(id)) {
 			throw new RuntimeException("Ao buscar um documento o ID não deve ser nulo.");
 		}

@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.digitro.edittext.dao.DaoException;
 import com.digitro.edittext.model.Documento;
 
 public class DocumentoServiceTeste {
@@ -15,7 +16,7 @@ public class DocumentoServiceTeste {
 	private DocumentoService documentoService;
 
 	@Before
-	public void before() {
+	public void before() throws DaoException {
 		this.documentoService = new DocumentoService();
 		limparDocumentoNoBanco();
 	}
@@ -38,6 +39,7 @@ public class DocumentoServiceTeste {
 		}
 
 	}
+	
 	@Test
 	public void deveLancarErroQuandoSalvarDocumentoComTituloInvalido() {
 		Documento documento = new Documento();
@@ -45,6 +47,23 @@ public class DocumentoServiceTeste {
 		documento.setCorpo("Corpo texto pequeno");
 		Assert.assertNotNull(documento);
 		DocumentoService documentoService = new DocumentoService();
+		try {
+			documentoService.salvar(documento);
+			fail();
+		} catch (RuntimeException e) {
+			Assert.assertEquals("O titulo é inválido: titulo deve conter de 1 a 50 caracteres", e.getMessage());
+		}
+		
+		documento.setTitulo(null);
+		try {
+			documentoService.salvar(documento);
+			fail();
+		} catch (RuntimeException e) {
+			Assert.assertEquals("O titulo é inválido: titulo deve conter de 1 a 50 caracteres", e.getMessage());
+		}
+		
+		String tituloMaisDe50Caracteres = "123456789012345678901234567890123456789012345678901";
+		documento.setTitulo(tituloMaisDe50Caracteres);
 		try {
 			documentoService.salvar(documento);
 			fail();
@@ -92,7 +111,7 @@ public class DocumentoServiceTeste {
 	}
 	
 	@Test
-	public void deveLancarErroQuantoAtualizarDocumentoSemId() {
+	public void deveLancarErroQuantoAtualizarDocumentoSemId() throws DaoException {
 	
 		Documento documento = new Documento();
 		documento.setTitulo("Titulo do documento");
@@ -106,13 +125,31 @@ public class DocumentoServiceTeste {
 		}
 	}
 	@Test
-	public void deveLancarErroQuandoAtualizarDocumentoComTituloInvalido() {
+	public void deveLancarErroQuandoAtualizarDocumentoComTituloInvalido() throws DaoException {
 		Documento documento = new Documento();
 		documento.setId(1l);
-		documento.setTitulo("");
+		
 		documento.setCorpo("Corpo texto pequeno");
 		Assert.assertNotNull(documento);
 		DocumentoService documentoService = new DocumentoService();
+		documento.setTitulo("");
+		try {
+			documentoService.atualizar(documento);
+			fail();
+		} catch (RuntimeException e) {
+			Assert.assertEquals("O titulo é inválido: titulo deve conter de 1 a 50 caracteres", e.getMessage());
+		}
+		
+		documento.setTitulo(null);
+		try {
+			documentoService.atualizar(documento);
+			fail();
+		} catch (RuntimeException e) {
+			Assert.assertEquals("O titulo é inválido: titulo deve conter de 1 a 50 caracteres", e.getMessage());
+		}
+		
+		String tituloMaisDe50Caracteres = "123456789012345678901234567890123456789012345678901";
+		documento.setTitulo(tituloMaisDe50Caracteres);
 		try {
 			documentoService.atualizar(documento);
 			fail();
@@ -121,13 +158,34 @@ public class DocumentoServiceTeste {
 		}
 	}
 	@Test
-	public void deveLancarErroQuandoAtualizarDocumentoComCorpoInvalido() {
+	public void deveLancarErroQuandoAtualizarDocumentoComCorpoInvalido() throws DaoException {
 		Documento documento = new Documento();
 		documento.setId(1l);
 		documento.setTitulo("Titulo do documento");
 		documento.setCorpo("");
 		Assert.assertNotNull(documento);
 		DocumentoService documentoService = new DocumentoService();
+		documento.setCorpo("");
+		try {
+			documentoService.atualizar(documento);
+			fail();
+		} catch (RuntimeException e) {
+			Assert.assertEquals("O corpo é inválido: corpo deve conter de 1 a 500 caracteres", e.getMessage());
+		}
+		documento.setCorpo(null);
+		try {
+			documentoService.atualizar(documento);
+			fail();
+		} catch (RuntimeException e) {
+			Assert.assertEquals("O corpo é inválido: corpo deve conter de 1 a 500 caracteres", e.getMessage());
+		}
+		String corpoMaisDe500Caracteres = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
+				+ "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
+				+ "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
+				+ "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
+				+ "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012234";
+		
+		documento.setCorpo(corpoMaisDe500Caracteres);
 		try {
 			documentoService.atualizar(documento);
 			fail();
@@ -136,12 +194,12 @@ public class DocumentoServiceTeste {
 		}
 	}
 	@Test
-	public void deveLancarErroQuandoExcluirDocumentoSemId() {
+	public void deveLancarErroQuandoExcluirDocumentoSemId() throws DaoException {
 		DocumentoService documentoService = new DocumentoService();
 		Long id = null;
 
 		try {
-			documentoService.exclui(id);
+			documentoService.excluir(id);
 			fail();
 		} catch (RuntimeException e) {
 			Assert.assertEquals("Ao excluir um documento o ID não deve ser nulo.", e.getMessage());
@@ -150,7 +208,7 @@ public class DocumentoServiceTeste {
 	// Teste integracão
 
 	@Test
-	public void deveSalvarUmDocumentoValido() {
+	public void deveSalvarUmDocumentoValido() throws DaoException {
 		Documento documento = new Documento();
 		documento.setTitulo("teste final");
 		documento.setCorpo("corpo valido");
@@ -166,7 +224,7 @@ public class DocumentoServiceTeste {
 	}
 
 	@Test
-	public void deveRetornarUmListaComTodosDocumentosArmazenados() {
+	public void deveRetornarUmListaComTodosDocumentosArmazenados() throws DaoException {
 		List<Documento> listarTodos = documentoService.listar(null, null);
 		Assert.assertNotNull(listarTodos);
 		Assert.assertTrue(listarTodos.isEmpty());
@@ -179,7 +237,7 @@ public class DocumentoServiceTeste {
 	}
 
 	@Test
-	public void deveRetornarUmDocumentoPesquisadoPeloId() {
+	public void deveRetornarUmDocumentoPesquisadoPeloId() throws DaoException {
 		Documento documento = new Documento();
 		documento.setTitulo("Teste de buscar por ID");
 		documento.setCorpo("Corpo do documento");
@@ -193,7 +251,7 @@ public class DocumentoServiceTeste {
 
 	}
 	@Test
-	public void deveErroQuandoBuscarUmDocumentoPesquisadoPeloIdComIdInvalidao() {
+	public void deveErroQuandoBuscarUmDocumentoPesquisadoPeloIdComIdInvalidao() throws DaoException {
 		Long id = null;
 		try {
 			documentoService.get(id);
@@ -203,7 +261,7 @@ public class DocumentoServiceTeste {
 		}
 	}
 	@Test
-	public void deveVerificarSeFoiExcluido() {
+	public void deveVerificarSeFoiExcluido() throws DaoException {
 		Documento documento = new Documento();
 		documento.setTitulo("Teste de deletar Documento");
 		documento.setCorpo("Corpo do documento");
@@ -213,14 +271,14 @@ public class DocumentoServiceTeste {
 		Assert.assertNotNull(documento.getId());
 		Assert.assertNotNull(documento.getData());
 
-		documentoService.exclui(documento.getId());
+		documentoService.excluir(documento.getId());
 		Documento resultado = null;
 		resultado = documentoService.get(documento.getId());
 		Assert.assertNotNull(resultado);
 	}
 
 	@Test
-	public void deveAtulizarDocumentoArmazenado() {
+	public void deveAtulizarDocumentoArmazenado() throws DaoException {
 		Documento documento1 = new Documento();
 		documento1.setTitulo("Teste de Atualizar Documento 001");
 		documento1.setCorpo("Corpo do documento 001 Teste de busca por filtros 001");
@@ -237,7 +295,7 @@ public class DocumentoServiceTeste {
 	}
 
 	@Test
-	public void deveRetornarListaDeDocumentosBuscadosPelosFiltrosTituloEOuCorpo() {
+	public void deveRetornarListaDeDocumentosBuscadosPelosFiltrosTituloEOuCorpo() throws DaoException {
 		Documento documento1 = new Documento();
 		documento1.setTitulo("Teste de Buscar por filtros 001");
 		documento1.setCorpo("Corpo do documento 001 Teste de busca por filtros 001");
@@ -261,13 +319,13 @@ public class DocumentoServiceTeste {
 
 	}
 
-	private void limparDocumentoNoBanco() {
+	private void limparDocumentoNoBanco() throws DaoException {
 		String titulo = null;
 		String corpo = null;
 		List<Documento> documentos = documentoService.listar(titulo, corpo);
 
 		for (Documento documento : documentos) {
-			documentoService.exclui(documento.getId());
+			documentoService.excluir(documento.getId());
 		}
 
 	}

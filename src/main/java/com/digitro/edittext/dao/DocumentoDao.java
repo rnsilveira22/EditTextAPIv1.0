@@ -12,14 +12,12 @@ import com.digitro.edittext.model.Documento;
 
 public class DocumentoDao {
 
-	
-
 	public Documento salvar(Documento documento) throws DaoException {
-		
+
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		
-		try(Connection con = ConectaPostgres.conectaPostgres()) {
+
+		try (Connection con = ConectaPostgres.conectaPostgres()) {
 			pstmt = con.prepareStatement("INSERT INTO documento(titulo,corpo) VALUES(?,?);",
 					Statement.RETURN_GENERATED_KEYS);
 			pstmt.setString(1, documento.getTitulo());
@@ -36,19 +34,18 @@ public class DocumentoDao {
 			return documento;
 
 		} catch (Exception e) {
-			throw new DaoException("", e); //TODO: arrumar
-		} 
-		
+			throw new DaoException("Erro ao conectar com base de dados", e);
+		}
+
 	}
 
-	public List<Documento> listar(String titulo, String corpo) {
-		
+	public List<Documento> listar(String titulo, String corpo) throws DaoException {
+
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		List<Documento> lista = new ArrayList<>();
-		
-		
-		try(Connection con = ConectaPostgres.conectaPostgres();) {
+
+		try (Connection con = ConectaPostgres.conectaPostgres();) {
 
 			String script = "select * FROM documento WHERE 1 = 1";
 
@@ -59,7 +56,7 @@ public class DocumentoDao {
 				script += " and corpo LIKE '%" + corpo + "%' ";
 			}
 			pstmt = con.prepareStatement(script);
-			
+
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				Documento documento = new Documento();
@@ -69,45 +66,43 @@ public class DocumentoDao {
 				documento.setData(rs.getDate("Data"));
 				lista.add(documento);
 			}
-			return lista;
+
 		} catch (Exception e) {
-			System.err.println(e);
-			e.printStackTrace();
-		} 
-		return null;
+			throw new DaoException("Erro ao conectar com base de dados", e);
+		}
+		return lista;
 	}
 
-	public Documento get(Long id) {
-		
+	public Documento get(Long id) throws DaoException {
+
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		Documento documento = new Documento();
-		try(Connection con = ConectaPostgres.conectaPostgres();) {
+		try (Connection con = ConectaPostgres.conectaPostgres();) {
 			pstmt = con.prepareStatement("SELECT * FROM documento WHERE id=?;");
 			pstmt.setLong(1, id);
 			rs = pstmt.executeQuery();
-			
+
 			while (rs.next()) {
-				
+
 				documento.setId(rs.getLong("id"));
 				documento.setTitulo(rs.getString("titulo"));
 				documento.setCorpo(rs.getString("corpo"));
 				documento.setData(rs.getDate("Data"));
 			}
-			return documento;
+			
 		} catch (Exception e) {
-			System.err.println(e);
-			e.printStackTrace();
+			throw new DaoException("Erro ao conectar com base de dados", e);
+		}
 
-		} 
 		return documento;
 	}
 
-	public Documento atualizar(Documento documento) {
-		
+	public Documento atualizar(Documento documento) throws DaoException {
+
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = ConectaPostgres.conectaPostgres();) {
+		try (Connection con = ConectaPostgres.conectaPostgres();) {
 
 			pstmt = con.prepareStatement(
 					"UPDATE documento SET titulo= ?,corpo= ? WHERE id= ? RETURNING id,titulo,corpo,data ;");
@@ -122,25 +117,23 @@ public class DocumentoDao {
 				documento.setData(rs.getDate("data"));
 			}
 		} catch (Exception e) {
-			System.err.println(e);
-			e.printStackTrace();
+			throw new DaoException("Erro ao conectar com base de dados", e);
 		}
 		return documento;
 	}
 
-	public void excluir(Long id) {
-		
+	public void excluir(Long id) throws DaoException {
+
 		PreparedStatement pstmt = null;
-		
-		try(Connection con = ConectaPostgres.conectaPostgres();) {
+
+		try (Connection con = ConectaPostgres.conectaPostgres();) {
 			pstmt = con.prepareStatement("DELETE FROM documento WHERE id= ?");
 			pstmt.setLong(1, id);
 			pstmt.execute();
 
 		} catch (Exception e) {
-			System.err.println(e);
-			e.printStackTrace();
-		} 
+			throw new DaoException("Erro ao conectar com base de dados", e);
+		}
 	}
 
 }
